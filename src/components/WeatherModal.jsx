@@ -22,15 +22,17 @@ const ModalContent = styled(motion.div)`
   padding: 2rem;
   border-radius: 20px;
   position: relative;
-  width: 50%;
-  max-height: 80vh;
-  overflow-y: auto;
+  width: 70%;
+  max-height: 90vh;
+  overflow-y: hidden;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
   border: 1px solid rgba(255, 255, 255, 0.18);
 
   @media (max-width: 900px) {
-    width: 80%;
+    width: 90%;
     padding: 1.2rem;
+    max-height: 90vh;
+    overflow-y: auto;
   }
   @media (max-width: 600px) {
     width: 95%;
@@ -145,6 +147,74 @@ const FavoriteButton = styled(motion.button)`
   }
 `;
 
+const LocalTime = styled.div`
+  text-align: center;
+  font-size: 1.2rem;
+  color: white;
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.5rem;
+  border-radius: 10px;
+`;
+
+const ForecastSection = styled.div`
+  margin-top: 1rem;
+  overflow-x: auto;
+`;
+
+const ForecastContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  padding-bottom: 10px;
+  justify-content: space-between;
+`;
+
+const ForecastDay = styled.div`
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.8rem;
+  flex: 1;
+  text-align: center;
+  
+  @media (max-width: 900px) {
+    min-width: 120px;
+    flex: none;
+  }
+  
+  @media (max-width: 600px) {
+    min-width: 100px;
+    padding: 0.5rem;
+  }
+`;
+
+const DayName = styled.div`
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: white;
+`;
+
+const ForecastIcon = styled.img`
+  width: 50px;
+  height: 50px;
+  margin: 0 auto;
+`;
+
+const ForecastTemp = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 0.5rem;
+  
+  .max {
+    color: #ff9e7d;
+    font-weight: bold;
+  }
+  
+  .min {
+    color: #7dc8ff;
+  }
+`;
+
 const WeatherModal = ({ 
   isOpen, 
   onClose, 
@@ -155,7 +225,7 @@ const WeatherModal = ({
   if (!weatherData) return null;
 
   const {
-    location: { name, country },
+    location: { name, country, localtime },
     current: {
       temp_c,
       feelslike_c,
@@ -167,8 +237,28 @@ const WeatherModal = ({
       uv,
       vis_km,
       cloud
-    }
+    },
+    forecast: { forecastday }
   } = weatherData;
+  
+  // Formatear la hora local
+  const formatLocalTime = (timeString) => {
+    const date = new Date(timeString);
+    return date.toLocaleString('es-ES', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  };
+  
+  // Obtener el nombre del día de la semana
+  const getDayName = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' });
+  };
 
   return (
     <AnimatePresence>
@@ -202,6 +292,11 @@ const WeatherModal = ({
                 ✕
               </CloseButton>
             </CityHeader>
+            
+            <LocalTime>
+              {formatLocalTime(localtime)}
+            </LocalTime>
+
             <DetailSection>
               <DetailTitle>Sensación y Ambiente</DetailTitle>
               <WeatherDetails>
@@ -254,6 +349,27 @@ const WeatherModal = ({
                   <span>{uv} ({getUVDescription(uv)})</span>
                 </div>
               </WeatherDetails>
+            </DetailSection>
+            
+            <DetailSection>
+              <DetailTitle>Previsión Semanal</DetailTitle>
+              <ForecastSection>
+                <ForecastContainer>
+                  {forecastday.map((day) => (
+                    <ForecastDay key={day.date}>
+                      <DayName>{getDayName(day.date)}</DayName>
+                      <ForecastIcon 
+                        src={day.day.condition.icon} 
+                        alt={day.day.condition.text}
+                      />
+                      <ForecastTemp>
+                        <span className="max">{Math.round(day.day.maxtemp_c)}°</span>
+                        <span className="min">{Math.round(day.day.mintemp_c)}°</span>
+                      </ForecastTemp>
+                    </ForecastDay>
+                  ))}
+                </ForecastContainer>
+              </ForecastSection>
             </DetailSection>
           </ModalContent>
         </ModalOverlay>

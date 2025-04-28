@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 
 const API_KEY = import.meta.env.VITE_WEATHERAPI_KEY;
-const API_URL = 'https://api.weatherapi.com/v1/current.json';
+const API_URL = 'https://api.weatherapi.com/v1/forecast.json';
 
 const Card = styled(motion.div)`
   background: rgba(255, 255, 255, 0.1);
@@ -88,7 +88,7 @@ const WeatherCard = ({ city, onWeatherChange, onCardClick }) => {
         setError(null);
         
         const response = await fetch(
-          `${API_URL}?key=${API_KEY}&q=${encodeURIComponent(city)}&lang=es`
+          `${API_URL}?key=${API_KEY}&q=${encodeURIComponent(city)}&days=7&lang=es`
         );
 
         if (!response.ok) {

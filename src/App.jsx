@@ -69,12 +69,13 @@ function App() {
 
   const fetchWeatherData = async (city) => {
     const API_KEY = import.meta.env.VITE_WEATHERAPI_KEY;
-    const API_URL = 'https://api.weatherapi.com/v1/current.json';
+    // Cambiar a forecast.json para obtener pronóstico y agregar días (7)
+    const API_URL = 'https://api.weatherapi.com/v1/forecast.json';
 
     try {
       setIsLoading(true);
       const response = await fetch(
-        `${API_URL}?key=${API_KEY}&q=${encodeURIComponent(city)}&lang=es`
+        `${API_URL}?key=${API_KEY}&q=${encodeURIComponent(city)}&days=7&lang=es`
       );
 
       if (!response.ok) {
